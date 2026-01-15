@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bacteria Competition Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .canvas-container {
+            position: relative;
+        }
+
+        #simulationCanvas {
+            border: 3px solid #333;
+            border-radius: 10px;
+            background: #f0f0f0;
+            cursor: crosshair;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls-panel {
+            flex: 1;
+            min-width: 280px;
+            max-width: 350px;
+        }
+
+        .control-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .control-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-start {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #059669;
+        }
+
+        .btn-pause {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-pause:hover {
+            background: #d97706;
+        }
+
+        .btn-reset {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #dc2626;
+        }
+
+        .btn-step {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-step:hover {
+            background: #5568d3;
+        }
+
+        .slider-control {
+            margin-bottom: 15px;
+        }
+
+        .slider-control label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .slider-control input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            outline: none;
+            background: #ddd;
+        }
+
+        .slider-control input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .slider-control input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            display: inline-block;
+            float: right;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .stat-species-a {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+            color: white;
+        }
+
+        .stat-species-b {
+            background: linear-gradient(135deg, #4ecdc4 0%, #6ee7de 100%);
+            color: white;
+        }
+
+        .stat-empty {
+            background: linear-gradient(135deg, #95a5a6 0%, #bdc3c7 100%);
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+        }
+
+        .stat-value {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            border: 2px solid #333;
+        }
+
+        .color-a {
+            background: #ff6b6b;
+        }
+
+        .color-b {
+            background: #4ecdc4;
+        }
+
+        .color-empty {
+            background: #f0f0f0;
+        }
+
+        .info {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .main-content {
+                flex-direction: column;
+            }
+
+            #simulationCanvas {
+                width: 100% !important;
+                height: auto !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🦠 Bacteria Competition Simulator</h1>
+        <p class="subtitle">Watch two bacterial species battle for dominance!</p>
+
+        <div class="main-content">
+            <div class="canvas-container">
+                <canvas id="simulationCanvas" width="600" height="600"></canvas>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color color-a"></div>
+                        <span>Species A (Red)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color color-b"></div>
+                        <span>Species B (Cyan)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color color-empty"></div>
+                        <span>Empty</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <div class="control-section">
+                    <h3>⚙️ Controls</h3>
+                    <div class="button-group">
+                        <button class="btn-start" onclick="startSimulation()">Start</button>
+                        <button class="btn-pause" onclick="pauseSimulation()">Pause</button>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn-reset" onclick="resetSimulation()">Reset</button>
+                        <button class="btn-step" onclick="stepSimulation()">Step</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>🎚️ Parameters</h3>
+                    <div class="slider-control">
+                        <label>
+                            Speed: <span class="slider-value" id="speedValue">10</span> gen/s
+                        </label>
+                        <input type="range" id="speedSlider" min="1" max="60" value="10" oninput="updateSpeed(this.value)">
+                    </div>
+                    <div class="slider-control">
+                        <label>
+                            Initial Population: <span class="slider-value" id="popValue">50</span>
+                        </label>
+                        <input type="range" id="populationSlider" min="10" max="500" value="50" oninput="updatePopulation(this.value)">
+                    </div>
+                    <div class="slider-control">
+                        <label>
+                            Growth Rate: <span class="slider-value" id="growthValue">30</span>%
+                        </label>
+                        <input type="range" id="growthSlider" min="10" max="100" value="30" oninput="updateGrowth(this.value)">
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>📊 Statistics</h3>
+                    <div class="stats">
+                        <div class="stat-item stat-species-a">
+                            <span class="stat-label">Species A:</span>
+                            <span class="stat-value" id="countA">0</span>
+                        </div>
+                        <div class="stat-item stat-species-b">
+                            <span class="stat-label">Species B:</span>
+                            <span class="stat-value" id="countB">0</span>
+                        </div>
+                        <div class="stat-item stat-empty">
+                            <span class="stat-label">Empty Cells:</span>
+                            <span class="stat-value" id="countEmpty">10000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="info">Each species grows randomly into adjacent empty cells. The simulation continues until one species dominates or equilibrium is reached.</p>
+    </div>
+
+    <script>
+        // Configuration
+        const GRID_SIZE = 100;
+        const CELL_SIZE = 6; // Canvas is 600x600, so 600/100 = 6
+
+        // Grid states
+        const EMPTY = 0;
+        const SPECIES_A = 1;
+        const SPECIES_B = 2;
+
+        // Colors
+        const COLORS = {
+            [EMPTY]: '#f0f0f0',
+            [SPECIES_A]: '#ff6b6b',
+            [SPECIES_B]: '#4ecdc4'
+        };
+
+        // Simulation state
+        let grid = [];
+        let isRunning = false;
+        let animationId = null;
+        let simulationSpeed = 10; // generations per second
+        let initialPopulation = 50;
+        let growthRate = 0.3; // 30% chance to grow into adjacent cell
+        let generation = 0;
+
+        // Canvas setup
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Initialize grid
+        function initializeGrid() {
+            grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(EMPTY));
+            generation = 0;
+
+            // Randomly seed species A
+            for (let i = 0; i < initialPopulation; i++) {
+                const x = Math.floor(Math.random() * GRID_SIZE);
+                const y = Math.floor(Math.random() * GRID_SIZE);
+                grid[y][x] = SPECIES_A;
+            }
+
+            // Randomly seed species B
+            for (let i = 0; i < initialPopulation; i++) {
+                const x = Math.floor(Math.random() * GRID_SIZE);
+                const y = Math.floor(Math.random() * GRID_SIZE);
+                grid[y][x] = SPECIES_B;
+            }
+        }
+
+        // Draw the grid
+        function drawGrid() {
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    ctx.fillStyle = COLORS[grid[y][x]];
+                    ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                }
+            }
+            updateStatistics();
+        }
+
+        // Update simulation statistics
+        function updateStatistics() {
+            let countA = 0;
+            let countB = 0;
+            let countEmpty = 0;
+
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    if (grid[y][x] === SPECIES_A) countA++;
+                    else if (grid[y][x] === SPECIES_B) countB++;
+                    else countEmpty++;
+                }
+            }
+
+            document.getElementById('countA').textContent = countA;
+            document.getElementById('countB').textContent = countB;
+            document.getElementById('countEmpty').textContent = countEmpty;
+        }
+
+        // Get neighbors of a cell
+        function getNeighbors(x, y) {
+            const neighbors = [];
+            const directions = [
+                [-1, -1], [-1, 0], [-1, 1],
+                [0, -1],           [0, 1],
+                [1, -1],  [1, 0],  [1, 1]
+            ];
+
+            for (const [dx, dy] of directions) {
+                const nx = x + dx;
+                const ny = y + dy;
+                if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE) {
+                    neighbors.push({x: nx, y: ny, state: grid[ny][nx]});
+                }
+            }
+
+            return neighbors;
+        }
+
+        // Simulate one generation
+        function simulateGeneration() {
+            const newGrid = grid.map(row => [...row]);
+
+            // Find all bacteria cells
+            const bacteriaCells = [];
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    if (grid[y][x] !== EMPTY) {
+                        bacteriaCells.push({x, y, species: grid[y][x]});
+                    }
+                }
+            }
+
+            // Shuffle to randomize growth order
+            bacteriaCells.sort(() => Math.random() - 0.5);
+
+            // Each bacterium tries to grow
+            for (const cell of bacteriaCells) {
+                if (Math.random() < growthRate) {
+                    const neighbors = getNeighbors(cell.x, cell.y);
+                    const emptyNeighbors = neighbors.filter(n => grid[n.y][n.x] === EMPTY);
+
+                    if (emptyNeighbors.length > 0) {
+                        const target = emptyNeighbors[Math.floor(Math.random() * emptyNeighbors.length)];
+                        newGrid[target.y][target.x] = cell.species;
+                    }
+                }
+            }
+
+            grid = newGrid;
+            generation++;
+        }
+
+        // Animation loop
+        let lastTime = 0;
+        function animate(currentTime) {
+            if (!isRunning) return;
+
+            const deltaTime = currentTime - lastTime;
+            const frameInterval = 1000 / simulationSpeed;
+
+            if (deltaTime >= frameInterval) {
+                simulateGeneration();
+                drawGrid();
+                lastTime = currentTime - (deltaTime % frameInterval);
+            }
+
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Control functions
+        function startSimulation() {
+            if (!isRunning) {
+                isRunning = true;
+                lastTime = performance.now();
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+
+        function pauseSimulation() {
+            isRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+
+        function resetSimulation() {
+            pauseSimulation();
+            initializeGrid();
+            drawGrid();
+        }
+
+        function stepSimulation() {
+            pauseSimulation();
+            simulateGeneration();
+            drawGrid();
+        }
+
+        // Parameter update functions
+        function updateSpeed(value) {
+            simulationSpeed = parseInt(value);
+            document.getElementById('speedValue').textContent = value;
+        }
+
+        function updatePopulation(value) {
+            initialPopulation = parseInt(value);
+            document.getElementById('popValue').textContent = value;
+        }
+
+        function updateGrowth(value) {
+            growthRate = parseInt(value) / 100;
+            document.getElementById('growthValue').textContent = value;
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            initializeGrid();
+            drawGrid();
+        };
+    </script>
+</body>
+</html>
