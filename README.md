@@ -1,132 +1,242 @@
-# 🦠 Bacteria Competition Simulator
+# 📊 Financial Dashboard - Currency & Stock Tracker
 
-An interactive visualization of two bacterial species competing for dominance in a 100x100 grid environment. Watch as different colored bacteria colonies grow, spread, and battle for territory in real-time!
+A comprehensive web application for tracking currency exchange rates and stock market information. Monitor USD/PLN and EUR/PLN rates, plus detailed financial metrics for multiple companies including daily charts, quarterly performance, and P/E ratios.
 
 ## 🎯 Features
 
-- **Real-time Simulation**: Watch bacteria colonies grow and compete dynamically
-- **100x100 Grid**: 10,000 cells of competitive space
-- **Two Species**: Red (Species A) and Cyan (Species B) bacteria with identical growth characteristics
-- **Interactive Controls**: Start, pause, reset, and step through generations
-- **Adjustable Parameters**:
-  - Simulation speed (1-60 generations per second)
-  - Initial population size (10-500 cells per species)
-  - Growth rate (10-100% probability)
-- **Live Statistics**: Real-time tracking of population counts
-- **Beautiful UI**: Modern, responsive design with gradient backgrounds
+### Currency Exchange Tracking
+- **USD/PLN and EUR/PLN rates**: Real-time display of exchange rates
+- **Change indicators**: Visual indicators showing daily percentage changes
+- **Manual updates**: Easy-to-use interface for updating rates
+- **Color-coded changes**: Green for positive, red for negative movements
+
+### Stock Market Dashboard
+- **Company tracking**: Add and monitor multiple companies
+- **Daily price charts**: Interactive 30-day price trend visualization using Chart.js
+- **Quarterly metrics**:
+  - Revenue (last quarter) with Q/Q change
+  - Net Income with Q/Q change
+  - Cash per Share with Q/Q change
+- **Valuation ratios**:
+  - Trailing P/E ratio
+  - Forward P/E ratio
+- **Full CRUD operations**: Add, edit, view, and remove companies
+
+### Data Persistence
+- **LocalStorage**: All data is saved locally in your browser
+- **Persistent updates**: Changes remain after page refresh
+- **Default examples**: Includes sample data for Apple Inc. and CD Projekt
 
 ## 🚀 How to Run
 
-1. Simply open `index.html` in any modern web browser
-2. No installation or dependencies required!
+### Option 1: Direct Browser Access
+Simply open `index.html` in any modern web browser. No installation required.
 
-Alternatively, you can use a local server:
+### Option 2: Local Web Server
 
+Using Python 3:
 ```bash
-# Using Python 3
 python -m http.server 8000
+```
 
-# Using Python 2
+Using Python 2:
+```bash
 python -m SimpleHTTPServer 8000
+```
 
-# Using Node.js (if you have http-server installed)
+Using Node.js:
+```bash
 npx http-server
 ```
 
 Then navigate to `http://localhost:8000` in your browser.
 
-## 🎮 How to Use
+## 📖 How to Use
 
-### Controls
+### Currency Management
 
-- **Start**: Begin or resume the simulation
-- **Pause**: Pause the simulation at any time
-- **Reset**: Clear the grid and generate new random initial populations
-- **Step**: Advance the simulation by exactly one generation (useful for detailed observation)
+1. **View rates**: Currency cards display current exchange rates
+2. **Update rates**: Click "Update Rate" button on any currency card
+3. **Edit values**: Enter new rate and percentage change
+4. **Save changes**: Click "Save" to update (automatically stored)
 
-### Parameters
+### Stock Management
 
-- **Speed**: Control how fast generations pass (1-60 generations per second)
-- **Initial Population**: Set how many bacteria of each species start on the grid (10-500)
-- **Growth Rate**: Adjust the probability that a bacterium will reproduce into an adjacent empty cell (10-100%)
+1. **Add company**: Click "+ Add Company" button
+2. **Enter details**:
+   - Company name and ticker symbol
+   - Last quarter revenue ($M)
+   - Revenue Q/Q change (%)
+   - Net Income ($M)
+   - Net Income Q/Q change (%)
+   - Cash per Share ($)
+   - Cash per Share Q/Q change (%)
+   - Trailing P/E ratio
+   - Forward P/E ratio
+   - Daily chart data (30 comma-separated price points)
+3. **Edit company**: Click "Edit Data" on any stock card
+4. **Remove company**: Click the "×" button in top-right corner
 
-### Statistics
+### Chart Data Format
 
-The simulation displays real-time statistics:
-- **Species A (Red)**: Current population count
-- **Species B (Cyan)**: Current population count
-- **Empty Cells**: Number of unoccupied spaces
+When adding or editing a company, enter daily prices as comma-separated values:
+```
+150.2,151.5,149.8,152.3,154.1,153.7,155.2,156.8,...
+```
 
-## 🧬 Simulation Rules
-
-1. **Initial Seeding**: Both species are randomly placed on the grid at the start
-2. **Growth Phase**: Each generation, every bacterium has a chance to reproduce
-3. **Reproduction**: Bacteria can only grow into adjacent empty cells (8 neighbors: N, S, E, W, NE, NW, SE, SW)
-4. **Random Selection**: Each bacterium randomly selects from available empty neighbors
-5. **No Conflict**: Bacteria cannot overwrite or kill other bacteria directly
-6. **Competition**: Species compete by occupying space first, limiting opponents' growth
+Enter approximately 30 price points for a complete month view. If left blank, random data will be generated.
 
 ## 🎨 Visual Design
 
-- **Species A**: Bright red (#ff6b6b) - Visually striking warm color
-- **Species B**: Cyan (#4ecdc4) - Cool, contrasting color
-- **Empty Cells**: Light gray (#f0f0f0) - Neutral background
+- **Modern UI**: Clean, professional financial dashboard aesthetic
+- **Gradient backgrounds**: Purple gradient backdrop
+- **Responsive cards**: Hover effects and smooth transitions
+- **Color indicators**:
+  - Green (▲) for positive changes
+  - Red (▼) for negative changes
+- **Interactive charts**: Hover over charts to see exact prices
+- **Modal dialogs**: Clean forms for editing data
 
-## 🔬 Scientific Concepts
+## 💡 Technical Details
 
-This simulation demonstrates several key concepts in microbiology and ecology:
+### Technologies Used
+- **Pure HTML/CSS/JavaScript**: No framework dependencies
+- **Chart.js**: Professional charting library for price visualization
+- **LocalStorage API**: Browser-based data persistence
+- **Responsive Grid Layout**: Adapts to different screen sizes
+- **CSS Animations**: Smooth transitions and hover effects
 
-- **Resource Competition**: Limited space forces species to compete
-- **Stochastic Growth**: Random elements make each simulation unique
-- **Spatial Dynamics**: Growth patterns emerge from local interactions
-- **Population Dynamics**: Observe exponential growth, saturation, and equilibrium
-- **Edge Effects**: Bacteria at boundaries have fewer growth opportunities
+### Browser Compatibility
+- Works in all modern browsers (Chrome, Firefox, Safari, Edge)
+- Requires JavaScript enabled
+- Requires LocalStorage support
 
-## 🛠️ Technical Details
+### Data Structure
 
-- **Pure HTML/CSS/JavaScript**: No external libraries or frameworks
-- **Canvas API**: Efficient rendering of 10,000 cells
-- **RequestAnimationFrame**: Smooth, optimized animation
-- **Responsive Design**: Works on desktop and mobile devices
+**Currency Object:**
+```javascript
+{
+  pair: 'USD/PLN',
+  rate: 4.0245,
+  change: -0.35
+}
+```
 
-## 📊 Interesting Patterns to Observe
+**Stock Object:**
+```javascript
+{
+  id: 1234567890,
+  name: 'Apple Inc.',
+  ticker: 'AAPL',
+  revenue: 89537,
+  revenueChange: 2.1,
+  netIncome: 22956,
+  netIncomeChange: 10.8,
+  cashPerShare: 3.85,
+  cashChange: -2.5,
+  trailingPE: 29.5,
+  forwardPE: 27.2,
+  chartData: [172.5, 173.2, ...]
+}
+```
 
-1. **Initial Advantage**: Species that starts near the center may dominate
-2. **Clustering**: Bacteria tend to form dense colonies
-3. **Competition Fronts**: Watch where the two species meet
-4. **Stalemates**: Sometimes species reach equilibrium with no empty space between them
-5. **Rare Comebacks**: Occasionally, a nearly-extinct species can recover
+## 📊 Default Data
 
-## 🎯 Suggested Experiments
+The application comes pre-loaded with example data:
 
-1. **High Growth Rate**: Set growth to 100% and watch explosive expansion
-2. **Low Growth Rate**: Set to 10-20% for slow, deliberate growth
-3. **Asymmetric Start**: Reset until one species has a clear advantage
-4. **Speed Variations**: Try both very slow (1 gen/s) and very fast (60 gen/s)
-5. **Population Impact**: Compare outcomes with 10 vs 500 initial population
+### Currency Rates
+- **USD/PLN**: 4.0245 (-0.35%)
+- **EUR/PLN**: 4.3122 (+0.12%)
 
-## 📝 Future Enhancement Ideas
+### Stock Examples
+- **Apple Inc. (AAPL)**: Complete financial metrics and 30-day chart
+- **CD Projekt (CDR)**: Polish gaming company example
 
-- Add mutation mechanics
-- Implement death/decay over time
-- Add more species (3-5 different colors)
-- Allow manual placement of bacteria
-- Add heat maps showing colony age
-- Implement different growth strategies per species
-- Add export capabilities for data analysis
+## 🔧 Customization
+
+### Adding More Currency Pairs
+Edit the `initializeDefaultData()` function in index.html to add more currency pairs:
+
+```javascript
+currencies = [
+  { pair: 'USD/PLN', rate: 4.0245, change: -0.35 },
+  { pair: 'EUR/PLN', rate: 4.3122, change: 0.12 },
+  { pair: 'GBP/PLN', rate: 5.1234, change: 0.45 }  // Add new pairs
+];
+```
+
+### Changing Chart Colors
+Modify the Chart.js configuration in the `createChart()` function:
+
+```javascript
+borderColor: '#667eea',  // Line color
+backgroundColor: 'rgba(102, 126, 234, 0.1)',  // Fill color
+```
+
+### Styling Modifications
+All styles are contained in the `<style>` section. Key CSS variables:
+- Primary color: `#667eea`
+- Positive change: `#28a745`
+- Negative change: `#dc3545`
+
+## 🌟 Use Cases
+
+- **Personal finance**: Track your investment portfolio
+- **Forex trading**: Monitor currency pair movements
+- **Stock research**: Compare company financials side-by-side
+- **Financial education**: Learn about P/E ratios and quarterly metrics
+- **Demo purposes**: Showcase financial data visualization
+
+## 📱 Mobile Responsive
+
+The dashboard automatically adapts to mobile devices:
+- Single-column layout on small screens
+- Touch-friendly buttons and inputs
+- Scrollable modals for data entry
+- Readable text at all sizes
+
+## 🔒 Privacy
+
+- **No external API calls**: All data stays on your device
+- **No tracking**: No analytics or third-party scripts (except Chart.js CDN)
+- **Local-only storage**: Data never leaves your browser
+- **Offline capable**: Works without internet (after initial load)
+
+## 🎓 Educational Value
+
+Learn about key financial metrics:
+- **Trailing P/E**: Price-to-Earnings ratio based on past 12 months
+- **Forward P/E**: P/E ratio based on estimated future earnings
+- **Q/Q Change**: Quarter-over-Quarter growth percentage
+- **Revenue**: Total income from business operations
+- **Net Income**: Profit after all expenses
+- **Cash per Share**: Company's cash divided by shares outstanding
+
+## 🚀 Future Enhancement Ideas
+
+- Integration with real-time financial APIs
+- Export data to CSV/Excel
+- Historical data tracking
+- Alerts for price changes
+- Multiple portfolio support
+- Dark mode toggle
+- Chart timeframe selection (7d, 30d, 90d)
+- Financial news integration
+- Performance comparison tools
 
 ## 📄 License
 
-This project is open source and available for educational purposes.
+This project is open source and available for personal and educational use.
 
 ## 🤝 Contributing
 
-Feel free to fork, modify, and enhance this simulation! Some areas for improvement:
-- More sophisticated growth algorithms
-- Additional species
-- Data export features
-- Performance optimizations for larger grids
+Feel free to fork and enhance this dashboard. Some areas for improvement:
+- API integration for live data
+- Additional financial metrics
+- Advanced charting options
+- Data import/export features
+- Multi-currency support
 
 ---
 
-**Enjoy watching the microscopic battle unfold!** 🔬
+**Stay informed about your investments!** 📈💰
