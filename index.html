@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bacteria Competition Simulator</title>
+    <title>Financial Dashboard - Currency & Stocks</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,564 +13,886 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
+            color: #333;
         }
 
         .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
             background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 1200px;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 2.5em;
+            color: #667eea;
+            font-size: 2em;
+            font-weight: 700;
         }
 
-        .subtitle {
-            text-align: center;
+        .last-update {
             color: #666;
+            font-size: 0.9em;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Currency Section */
+        .currency-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
             margin-bottom: 30px;
-            font-size: 1.1em;
         }
 
-        .main-content {
+        .currency-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .currency-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .currency-header {
             display: flex;
-            gap: 30px;
-            flex-wrap: wrap;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
 
-        .canvas-container {
+        .currency-pair {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .currency-rate {
+            font-size: 2em;
+            font-weight: 700;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .currency-change {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .currency-change.positive {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .currency-change.negative {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .edit-btn, .add-stock-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .edit-btn:hover, .add-stock-btn:hover {
+            background: #5568d3;
+        }
+
+        /* Stock Section */
+        .stocks-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stock-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             position: relative;
         }
 
-        #simulationCanvas {
-            border: 3px solid #333;
-            border-radius: 10px;
-            background: #f0f0f0;
-            cursor: crosshair;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
         }
 
-        .controls-panel {
-            flex: 1;
-            min-width: 280px;
-            max-width: 350px;
-        }
-
-        .control-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .control-section h3 {
-            color: #333;
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
-            font-size: 1.3em;
             border-bottom: 2px solid #667eea;
             padding-bottom: 10px;
         }
 
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
+        .stock-name {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #667eea;
         }
 
-        button {
+        .stock-ticker {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            height: 150px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .metric {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .metric-label {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .metric-change {
+            font-size: 0.85em;
+            margin-top: 3px;
+            font-weight: 600;
+        }
+
+        .metric-change.positive {
+            color: #28a745;
+        }
+
+        .metric-change.negative {
+            color: #dc3545;
+        }
+
+        .pe-ratios {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .pe-metric {
+            text-align: center;
+            background: #e8eaf6;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .pe-label {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .pe-value {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #5568d3;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            transition: background 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .add-stock-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .add-stock-btn {
+            font-size: 1em;
+            padding: 12px 30px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            font-size: 1.5em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-primary, .btn-secondary {
             flex: 1;
-            padding: 12px 20px;
+            padding: 12px;
             border: none;
             border-radius: 8px;
             font-size: 1em;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            min-width: 100px;
+            transition: all 0.3s ease;
         }
 
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        .btn-start {
-            background: #10b981;
-            color: white;
-        }
-
-        .btn-start:hover {
-            background: #059669;
-        }
-
-        .btn-pause {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .btn-pause:hover {
-            background: #d97706;
-        }
-
-        .btn-reset {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-reset:hover {
-            background: #dc2626;
-        }
-
-        .btn-step {
+        .btn-primary {
             background: #667eea;
             color: white;
         }
 
-        .btn-step:hover {
+        .btn-primary:hover {
             background: #5568d3;
         }
 
-        .slider-control {
-            margin-bottom: 15px;
-        }
-
-        .slider-control label {
-            display: block;
-            color: #555;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .slider-control input[type="range"] {
-            width: 100%;
-            height: 8px;
-            border-radius: 5px;
-            outline: none;
-            background: #ddd;
-        }
-
-        .slider-control input[type="range"]::-webkit-slider-thumb {
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #667eea;
-            cursor: pointer;
-        }
-
-        .slider-control input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #667eea;
-            cursor: pointer;
-            border: none;
-        }
-
-        .slider-value {
-            display: inline-block;
-            float: right;
-            color: #667eea;
-            font-weight: bold;
-        }
-
-        .stats {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-
-        .stat-species-a {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+        .btn-secondary {
+            background: #6c757d;
             color: white;
         }
 
-        .stat-species-b {
-            background: linear-gradient(135deg, #4ecdc4 0%, #6ee7de 100%);
-            color: white;
+        .btn-secondary:hover {
+            background: #5a6268;
         }
 
-        .stat-empty {
-            background: linear-gradient(135deg, #95a5a6 0%, #bdc3c7 100%);
-            color: white;
-        }
-
-        .stat-label {
-            font-size: 1.1em;
-        }
-
-        .stat-value {
-            font-size: 1.3em;
-            font-weight: bold;
-        }
-
-        .legend {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-        }
-
-        .legend-color {
-            width: 30px;
-            height: 30px;
-            border-radius: 5px;
-            border: 2px solid #333;
-        }
-
-        .color-a {
-            background: #ff6b6b;
-        }
-
-        .color-b {
-            background: #4ecdc4;
-        }
-
-        .color-empty {
-            background: #f0f0f0;
-        }
-
-        .info {
-            text-align: center;
-            color: #666;
+        .info-text {
             font-size: 0.9em;
-            margin-top: 20px;
+            color: #666;
+            margin-top: 10px;
             font-style: italic;
         }
 
         @media (max-width: 768px) {
             h1 {
-                font-size: 1.8em;
+                font-size: 1.5em;
             }
 
-            .main-content {
-                flex-direction: column;
+            .currency-section, .stocks-section {
+                grid-template-columns: 1fr;
             }
 
-            #simulationCanvas {
-                width: 100% !important;
-                height: auto !important;
+            .metrics-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🦠 Bacteria Competition Simulator</h1>
-        <p class="subtitle">Watch two bacterial species battle for dominance!</p>
-
-        <div class="main-content">
-            <div class="canvas-container">
-                <canvas id="simulationCanvas" width="600" height="600"></canvas>
-                <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color color-a"></div>
-                        <span>Species A (Red)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color color-b"></div>
-                        <span>Species B (Cyan)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color color-empty"></div>
-                        <span>Empty</span>
-                    </div>
-                </div>
+        <header>
+            <h1>📊 Financial Dashboard</h1>
+            <div class="last-update">
+                Last updated: <span id="lastUpdate">-</span>
             </div>
+        </header>
 
-            <div class="controls-panel">
-                <div class="control-section">
-                    <h3>⚙️ Controls</h3>
-                    <div class="button-group">
-                        <button class="btn-start" onclick="startSimulation()">Start</button>
-                        <button class="btn-pause" onclick="pauseSimulation()">Pause</button>
-                    </div>
-                    <div class="button-group">
-                        <button class="btn-reset" onclick="resetSimulation()">Reset</button>
-                        <button class="btn-step" onclick="stepSimulation()">Step</button>
-                    </div>
-                </div>
-
-                <div class="control-section">
-                    <h3>🎚️ Parameters</h3>
-                    <div class="slider-control">
-                        <label>
-                            Speed: <span class="slider-value" id="speedValue">10</span> gen/s
-                        </label>
-                        <input type="range" id="speedSlider" min="1" max="60" value="10" oninput="updateSpeed(this.value)">
-                    </div>
-                    <div class="slider-control">
-                        <label>
-                            Initial Population: <span class="slider-value" id="popValue">50</span>
-                        </label>
-                        <input type="range" id="populationSlider" min="10" max="500" value="50" oninput="updatePopulation(this.value)">
-                    </div>
-                    <div class="slider-control">
-                        <label>
-                            Growth Rate: <span class="slider-value" id="growthValue">30</span>%
-                        </label>
-                        <input type="range" id="growthSlider" min="10" max="100" value="30" oninput="updateGrowth(this.value)">
-                    </div>
-                </div>
-
-                <div class="control-section">
-                    <h3>📊 Statistics</h3>
-                    <div class="stats">
-                        <div class="stat-item stat-species-a">
-                            <span class="stat-label">Species A:</span>
-                            <span class="stat-value" id="countA">0</span>
-                        </div>
-                        <div class="stat-item stat-species-b">
-                            <span class="stat-label">Species B:</span>
-                            <span class="stat-value" id="countB">0</span>
-                        </div>
-                        <div class="stat-item stat-empty">
-                            <span class="stat-label">Empty Cells:</span>
-                            <span class="stat-value" id="countEmpty">10000</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <h2 class="section-title">💱 Currency Exchange Rates</h2>
+        <div class="currency-section" id="currencySection">
+            <!-- Currency cards will be inserted here -->
         </div>
 
-        <p class="info">Each species grows randomly into adjacent empty cells. The simulation continues until one species dominates or equilibrium is reached.</p>
+        <h2 class="section-title">📈 Stock Market Overview</h2>
+        <div class="add-stock-section">
+            <button class="add-stock-btn" onclick="openAddStockModal()">+ Add Company</button>
+        </div>
+        <div class="stocks-section" id="stocksSection">
+            <!-- Stock cards will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Currency Edit Modal -->
+    <div id="currencyModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-header">Update Currency Rate</h3>
+            <div class="form-group">
+                <label>Currency Pair:</label>
+                <input type="text" id="currencyPair" readonly>
+            </div>
+            <div class="form-group">
+                <label>Exchange Rate:</label>
+                <input type="number" id="currencyRate" step="0.0001" required>
+            </div>
+            <div class="form-group">
+                <label>Change (%):</label>
+                <input type="number" id="currencyChangePercent" step="0.01" required>
+            </div>
+            <div class="form-actions">
+                <button class="btn-primary" onclick="saveCurrency()">Save</button>
+                <button class="btn-secondary" onclick="closeModal('currencyModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Add/Edit Modal -->
+    <div id="stockModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-header" id="stockModalTitle">Add Company</h3>
+            <div class="form-group">
+                <label>Company Name:</label>
+                <input type="text" id="stockName" required>
+            </div>
+            <div class="form-group">
+                <label>Ticker Symbol:</label>
+                <input type="text" id="stockTicker" required>
+            </div>
+            <div class="form-group">
+                <label>Last Quarter Revenue ($M):</label>
+                <input type="number" id="stockRevenue" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Revenue Q/Q Change (%):</label>
+                <input type="number" id="stockRevenueChange" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Net Income ($M):</label>
+                <input type="number" id="stockNetIncome" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Net Income Q/Q Change (%):</label>
+                <input type="number" id="stockNetIncomeChange" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Cash per Share ($):</label>
+                <input type="number" id="stockCashPerShare" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Cash per Share Q/Q Change (%):</label>
+                <input type="number" id="stockCashChange" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Trailing P/E:</label>
+                <input type="number" id="stockTrailingPE" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Forward P/E:</label>
+                <input type="number" id="stockForwardPE" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Daily Chart Data (comma-separated prices, last 30 days):</label>
+                <input type="text" id="stockChartData" placeholder="e.g., 150.2,151.5,149.8,152.3,...">
+                <p class="info-text">Enter approximately 30 price points separated by commas for the daily chart</p>
+            </div>
+            <div class="form-actions">
+                <button class="btn-primary" onclick="saveStock()">Save</button>
+                <button class="btn-secondary" onclick="closeModal('stockModal')">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Configuration
-        const GRID_SIZE = 100;
-        const CELL_SIZE = 6; // Canvas is 600x600, so 600/100 = 6
+        // Initialize data structures
+        let currencies = [];
+        let stocks = [];
+        let editingStockId = null;
+        let editingCurrency = null;
+        let charts = {};
 
-        // Grid states
-        const EMPTY = 0;
-        const SPECIES_A = 1;
-        const SPECIES_B = 2;
-
-        // Colors
-        const COLORS = {
-            [EMPTY]: '#f0f0f0',
-            [SPECIES_A]: '#ff6b6b',
-            [SPECIES_B]: '#4ecdc4'
-        };
-
-        // Simulation state
-        let grid = [];
-        let isRunning = false;
-        let animationId = null;
-        let simulationSpeed = 10; // generations per second
-        let initialPopulation = 50;
-        let growthRate = 0.3; // 30% chance to grow into adjacent cell
-        let generation = 0;
-
-        // Canvas setup
-        const canvas = document.getElementById('simulationCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // Initialize grid
-        function initializeGrid() {
-            grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(EMPTY));
-            generation = 0;
-
-            // Randomly seed species A
-            for (let i = 0; i < initialPopulation; i++) {
-                const x = Math.floor(Math.random() * GRID_SIZE);
-                const y = Math.floor(Math.random() * GRID_SIZE);
-                grid[y][x] = SPECIES_A;
-            }
-
-            // Randomly seed species B
-            for (let i = 0; i < initialPopulation; i++) {
-                const x = Math.floor(Math.random() * GRID_SIZE);
-                const y = Math.floor(Math.random() * GRID_SIZE);
-                grid[y][x] = SPECIES_B;
-            }
-        }
-
-        // Draw the grid
-        function drawGrid() {
-            for (let y = 0; y < GRID_SIZE; y++) {
-                for (let x = 0; x < GRID_SIZE; x++) {
-                    ctx.fillStyle = COLORS[grid[y][x]];
-                    ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        // Initialize default data
+        function initializeDefaultData() {
+            currencies = [
+                {
+                    pair: 'USD/PLN',
+                    rate: 4.0245,
+                    change: -0.35
+                },
+                {
+                    pair: 'EUR/PLN',
+                    rate: 4.3122,
+                    change: 0.12
                 }
-            }
-            updateStatistics();
-        }
-
-        // Update simulation statistics
-        function updateStatistics() {
-            let countA = 0;
-            let countB = 0;
-            let countEmpty = 0;
-
-            for (let y = 0; y < GRID_SIZE; y++) {
-                for (let x = 0; x < GRID_SIZE; x++) {
-                    if (grid[y][x] === SPECIES_A) countA++;
-                    else if (grid[y][x] === SPECIES_B) countB++;
-                    else countEmpty++;
-                }
-            }
-
-            document.getElementById('countA').textContent = countA;
-            document.getElementById('countB').textContent = countB;
-            document.getElementById('countEmpty').textContent = countEmpty;
-        }
-
-        // Get neighbors of a cell
-        function getNeighbors(x, y) {
-            const neighbors = [];
-            const directions = [
-                [-1, -1], [-1, 0], [-1, 1],
-                [0, -1],           [0, 1],
-                [1, -1],  [1, 0],  [1, 1]
             ];
 
-            for (const [dx, dy] of directions) {
-                const nx = x + dx;
-                const ny = y + dy;
-                if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE) {
-                    neighbors.push({x: nx, y: ny, state: grid[ny][nx]});
+            stocks = [
+                {
+                    id: Date.now(),
+                    name: 'Apple Inc.',
+                    ticker: 'AAPL',
+                    revenue: 89537,
+                    revenueChange: 2.1,
+                    netIncome: 22956,
+                    netIncomeChange: 10.8,
+                    cashPerShare: 3.85,
+                    cashChange: -2.5,
+                    trailingPE: 29.5,
+                    forwardPE: 27.2,
+                    chartData: [172.5, 173.2, 171.8, 174.5, 175.1, 173.9, 176.2, 177.8, 176.5, 178.3, 179.1, 177.5, 180.2, 181.5, 179.8, 182.3, 183.7, 182.1, 184.5, 185.9, 184.2, 186.7, 188.3, 187.1, 189.5, 190.2, 188.8, 191.4, 192.7, 191.3]
+                },
+                {
+                    id: Date.now() + 1,
+                    name: 'CD Projekt',
+                    ticker: 'CDR',
+                    revenue: 162.5,
+                    revenueChange: 15.3,
+                    netIncome: 48.2,
+                    netIncomeChange: 22.7,
+                    cashPerShare: 12.45,
+                    cashChange: 8.5,
+                    trailingPE: 18.3,
+                    forwardPE: 15.8,
+                    chartData: [95.2, 96.5, 94.8, 97.3, 98.1, 96.9, 99.2, 100.5, 99.3, 101.8, 102.5, 101.2, 103.7, 104.9, 103.5, 105.8, 107.2, 106.1, 108.5, 109.8, 108.4, 110.7, 112.1, 111.0, 113.5, 114.8, 113.2, 115.9, 117.3, 116.1]
                 }
-            }
+            ];
 
-            return neighbors;
+            saveToLocalStorage();
         }
 
-        // Simulate one generation
-        function simulateGeneration() {
-            const newGrid = grid.map(row => [...row]);
+        // Load data from localStorage or initialize default
+        function loadData() {
+            const savedCurrencies = localStorage.getItem('currencies');
+            const savedStocks = localStorage.getItem('stocks');
 
-            // Find all bacteria cells
-            const bacteriaCells = [];
-            for (let y = 0; y < GRID_SIZE; y++) {
-                for (let x = 0; x < GRID_SIZE; x++) {
-                    if (grid[y][x] !== EMPTY) {
-                        bacteriaCells.push({x, y, species: grid[y][x]});
+            if (savedCurrencies && savedStocks) {
+                currencies = JSON.parse(savedCurrencies);
+                stocks = JSON.parse(savedStocks);
+            } else {
+                initializeDefaultData();
+            }
+
+            updateLastUpdate();
+            renderCurrencies();
+            renderStocks();
+        }
+
+        // Save data to localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('currencies', JSON.stringify(currencies));
+            localStorage.setItem('stocks', JSON.stringify(stocks));
+            updateLastUpdate();
+        }
+
+        // Update last update timestamp
+        function updateLastUpdate() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleString();
+        }
+
+        // Render currency cards
+        function renderCurrencies() {
+            const container = document.getElementById('currencySection');
+            container.innerHTML = '';
+
+            currencies.forEach((currency, index) => {
+                const changeClass = currency.change >= 0 ? 'positive' : 'negative';
+                const changeSymbol = currency.change >= 0 ? '+' : '';
+
+                const card = document.createElement('div');
+                card.className = 'currency-card';
+                card.innerHTML = `
+                    <div class="currency-header">
+                        <span class="currency-pair">${currency.pair}</span>
+                    </div>
+                    <div class="currency-rate">${currency.rate.toFixed(4)}</div>
+                    <span class="currency-change ${changeClass}">
+                        ${changeSymbol}${currency.change.toFixed(2)}%
+                    </span>
+                    <button class="edit-btn" onclick="editCurrency(${index})">Update Rate</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Edit currency
+        function editCurrency(index) {
+            editingCurrency = index;
+            const currency = currencies[index];
+
+            document.getElementById('currencyPair').value = currency.pair;
+            document.getElementById('currencyRate').value = currency.rate;
+            document.getElementById('currencyChangePercent').value = currency.change;
+
+            document.getElementById('currencyModal').style.display = 'block';
+        }
+
+        // Save currency changes
+        function saveCurrency() {
+            if (editingCurrency !== null) {
+                currencies[editingCurrency].rate = parseFloat(document.getElementById('currencyRate').value);
+                currencies[editingCurrency].change = parseFloat(document.getElementById('currencyChangePercent').value);
+
+                saveToLocalStorage();
+                renderCurrencies();
+                closeModal('currencyModal');
+                editingCurrency = null;
+            }
+        }
+
+        // Render stock cards
+        function renderStocks() {
+            const container = document.getElementById('stocksSection');
+            container.innerHTML = '';
+
+            stocks.forEach((stock, index) => {
+                const card = document.createElement('div');
+                card.className = 'stock-card';
+                card.innerHTML = `
+                    <button class="remove-btn" onclick="removeStock(${index})" title="Remove company">×</button>
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-name">${stock.name}</div>
+                            <div class="stock-ticker">${stock.ticker}</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chart-${stock.id}"></canvas>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Revenue (Last Q)</div>
+                            <div class="metric-value">$${stock.revenue.toFixed(2)}M</div>
+                            <div class="metric-change ${stock.revenueChange >= 0 ? 'positive' : 'negative'}">
+                                ${stock.revenueChange >= 0 ? '▲' : '▼'} ${Math.abs(stock.revenueChange).toFixed(2)}% Q/Q
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Net Income</div>
+                            <div class="metric-value">$${stock.netIncome.toFixed(2)}M</div>
+                            <div class="metric-change ${stock.netIncomeChange >= 0 ? 'positive' : 'negative'}">
+                                ${stock.netIncomeChange >= 0 ? '▲' : '▼'} ${Math.abs(stock.netIncomeChange).toFixed(2)}% Q/Q
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Cash per Share</div>
+                            <div class="metric-value">$${stock.cashPerShare.toFixed(2)}</div>
+                            <div class="metric-change ${stock.cashChange >= 0 ? 'positive' : 'negative'}">
+                                ${stock.cashChange >= 0 ? '▲' : '▼'} ${Math.abs(stock.cashChange).toFixed(2)}% Q/Q
+                            </div>
+                        </div>
+                        <div class="pe-ratios">
+                            <div class="pe-metric">
+                                <div class="pe-label">Trailing P/E</div>
+                                <div class="pe-value">${stock.trailingPE.toFixed(2)}</div>
+                            </div>
+                            <div class="pe-metric">
+                                <div class="pe-label">Forward P/E</div>
+                                <div class="pe-value">${stock.forwardPE.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="edit-btn" onclick="editStock(${index})">Edit Data</button>
+                `;
+                container.appendChild(card);
+
+                // Create chart after DOM is updated
+                setTimeout(() => createChart(stock), 100);
+            });
+        }
+
+        // Create stock chart
+        function createChart(stock) {
+            const ctx = document.getElementById(`chart-${stock.id}`);
+            if (!ctx) return;
+
+            // Destroy existing chart if it exists
+            if (charts[stock.id]) {
+                charts[stock.id].destroy();
+            }
+
+            const labels = stock.chartData.map((_, i) => `D${i + 1}`);
+
+            charts[stock.id] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Price',
+                        data: stock.chartData,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 0,
+                        pointHoverRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `$${context.parsed.y.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: false
+                        },
+                        y: {
+                            display: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toFixed(0);
+                                },
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            grid: {
+                                display: true,
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
                     }
                 }
-            }
+            });
+        }
 
-            // Shuffle to randomize growth order
-            bacteriaCells.sort(() => Math.random() - 0.5);
+        // Open add stock modal
+        function openAddStockModal() {
+            editingStockId = null;
+            document.getElementById('stockModalTitle').textContent = 'Add Company';
+            document.getElementById('stockName').value = '';
+            document.getElementById('stockTicker').value = '';
+            document.getElementById('stockRevenue').value = '';
+            document.getElementById('stockRevenueChange').value = '';
+            document.getElementById('stockNetIncome').value = '';
+            document.getElementById('stockNetIncomeChange').value = '';
+            document.getElementById('stockCashPerShare').value = '';
+            document.getElementById('stockCashChange').value = '';
+            document.getElementById('stockTrailingPE').value = '';
+            document.getElementById('stockForwardPE').value = '';
+            document.getElementById('stockChartData').value = '';
 
-            // Each bacterium tries to grow
-            for (const cell of bacteriaCells) {
-                if (Math.random() < growthRate) {
-                    const neighbors = getNeighbors(cell.x, cell.y);
-                    const emptyNeighbors = neighbors.filter(n => grid[n.y][n.x] === EMPTY);
+            document.getElementById('stockModal').style.display = 'block';
+        }
 
-                    if (emptyNeighbors.length > 0) {
-                        const target = emptyNeighbors[Math.floor(Math.random() * emptyNeighbors.length)];
-                        newGrid[target.y][target.x] = cell.species;
-                    }
+        // Edit stock
+        function editStock(index) {
+            editingStockId = index;
+            const stock = stocks[index];
+
+            document.getElementById('stockModalTitle').textContent = 'Edit Company';
+            document.getElementById('stockName').value = stock.name;
+            document.getElementById('stockTicker').value = stock.ticker;
+            document.getElementById('stockRevenue').value = stock.revenue;
+            document.getElementById('stockRevenueChange').value = stock.revenueChange;
+            document.getElementById('stockNetIncome').value = stock.netIncome;
+            document.getElementById('stockNetIncomeChange').value = stock.netIncomeChange;
+            document.getElementById('stockCashPerShare').value = stock.cashPerShare;
+            document.getElementById('stockCashChange').value = stock.cashChange;
+            document.getElementById('stockTrailingPE').value = stock.trailingPE;
+            document.getElementById('stockForwardPE').value = stock.forwardPE;
+            document.getElementById('stockChartData').value = stock.chartData.join(',');
+
+            document.getElementById('stockModal').style.display = 'block';
+        }
+
+        // Save stock
+        function saveStock() {
+            const chartDataStr = document.getElementById('stockChartData').value.trim();
+            let chartData;
+
+            if (chartDataStr) {
+                chartData = chartDataStr.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
+                if (chartData.length === 0) {
+                    alert('Invalid chart data. Please enter valid numbers separated by commas.');
+                    return;
                 }
+            } else {
+                // Generate random chart data if none provided
+                chartData = Array.from({length: 30}, () => Math.random() * 50 + 100);
             }
 
-            grid = newGrid;
-            generation++;
-        }
+            const stockData = {
+                name: document.getElementById('stockName').value,
+                ticker: document.getElementById('stockTicker').value,
+                revenue: parseFloat(document.getElementById('stockRevenue').value),
+                revenueChange: parseFloat(document.getElementById('stockRevenueChange').value),
+                netIncome: parseFloat(document.getElementById('stockNetIncome').value),
+                netIncomeChange: parseFloat(document.getElementById('stockNetIncomeChange').value),
+                cashPerShare: parseFloat(document.getElementById('stockCashPerShare').value),
+                cashChange: parseFloat(document.getElementById('stockCashChange').value),
+                trailingPE: parseFloat(document.getElementById('stockTrailingPE').value),
+                forwardPE: parseFloat(document.getElementById('stockForwardPE').value),
+                chartData: chartData
+            };
 
-        // Animation loop
-        let lastTime = 0;
-        function animate(currentTime) {
-            if (!isRunning) return;
-
-            const deltaTime = currentTime - lastTime;
-            const frameInterval = 1000 / simulationSpeed;
-
-            if (deltaTime >= frameInterval) {
-                simulateGeneration();
-                drawGrid();
-                lastTime = currentTime - (deltaTime % frameInterval);
+            if (editingStockId !== null) {
+                // Update existing stock
+                stocks[editingStockId] = { ...stocks[editingStockId], ...stockData };
+            } else {
+                // Add new stock
+                stockData.id = Date.now();
+                stocks.push(stockData);
             }
 
-            animationId = requestAnimationFrame(animate);
+            saveToLocalStorage();
+            renderStocks();
+            closeModal('stockModal');
         }
 
-        // Control functions
-        function startSimulation() {
-            if (!isRunning) {
-                isRunning = true;
-                lastTime = performance.now();
-                animationId = requestAnimationFrame(animate);
+        // Remove stock
+        function removeStock(index) {
+            if (confirm('Are you sure you want to remove this company?')) {
+                // Destroy chart before removing
+                if (charts[stocks[index].id]) {
+                    charts[stocks[index].id].destroy();
+                    delete charts[stocks[index].id];
+                }
+
+                stocks.splice(index, 1);
+                saveToLocalStorage();
+                renderStocks();
             }
         }
 
-        function pauseSimulation() {
-            isRunning = false;
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-                animationId = null;
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = 'none';
             }
         }
 
-        function resetSimulation() {
-            pauseSimulation();
-            initializeGrid();
-            drawGrid();
-        }
-
-        function stepSimulation() {
-            pauseSimulation();
-            simulateGeneration();
-            drawGrid();
-        }
-
-        // Parameter update functions
-        function updateSpeed(value) {
-            simulationSpeed = parseInt(value);
-            document.getElementById('speedValue').textContent = value;
-        }
-
-        function updatePopulation(value) {
-            initialPopulation = parseInt(value);
-            document.getElementById('popValue').textContent = value;
-        }
-
-        function updateGrowth(value) {
-            growthRate = parseInt(value) / 100;
-            document.getElementById('growthValue').textContent = value;
-        }
-
-        // Initialize on load
+        // Initialize app
         window.onload = function() {
-            initializeGrid();
-            drawGrid();
+            loadData();
         };
     </script>
 </body>
